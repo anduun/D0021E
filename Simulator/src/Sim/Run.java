@@ -31,9 +31,9 @@ public class Run {
 		
 		// Generate some traffic
 		// host1 will send 3 messages with time interval 5 to network 2, node 1. Sequence starts with number 1
-		host1.StartSending(2, 2, 10, 5, 1); 
+		host1.StartSendingGaussian(2, 2, 10, 5, 1);
 		// host2 will send 2 messages with time interval 10 to network 1, node 1. Sequence starts with number 10
-		host2.StartSending(1, 1, 10000, 10, 10); 
+		host2.StartSendingPoisson(1, 1, 10, 10, 10, 2);
 		
 		// Start the simulation engine and of we go!
 		Thread t=new Thread(SimEngine.instance());
@@ -42,7 +42,7 @@ public class Run {
 		try
 		{
 			t.join();
-			System.out.println("**********************************************************************");
+			System.out.println("************************************************************");
 			System.out.println("Node 1.1 sent a total of "+host1.getMessagesSent()+" messages");
 			System.out.println("Node 1.1 received a total of "+host1.getMessagesReceived()+" messages");
 			System.out.println("Node 2.1 sent a total of "+host2.getMessagesSent()+" messages");
