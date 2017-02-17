@@ -42,10 +42,12 @@ public class Run {
 		try
 		{
 			t.join();
+			System.out.println("**********************************************************************");
 			System.out.println("Node 1.1 sent a total of "+host1.getMessagesSent()+" messages");
 			System.out.println("Node 1.1 received a total of "+host1.getMessagesReceived()+" messages");
 			System.out.println("Node 2.1 sent a total of "+host2.getMessagesSent()+" messages");
 			System.out.println("Node 2.1 received a total of "+host2.getMessagesReceived()+" messages");
+			System.out.println("**********************************************************************");
 		}
 		catch (Exception e)
 		{
