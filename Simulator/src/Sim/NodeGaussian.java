@@ -10,8 +10,6 @@ public class NodeGaussian extends SimEnt {
 	private SimEnt _peer;
 	private int _sentmsg=0;
 	private int _seq = 0;
-
-
 	
 	public NodeGaussian (int network, int node)
 	{
@@ -81,6 +79,7 @@ public class NodeGaussian extends SimEnt {
 			
 		}
 	}
+	
 	//Test function for Gaussian distribution
 	public static void test()
 	{
@@ -91,6 +90,7 @@ public class NodeGaussian extends SimEnt {
 		      System.out.println(xd);
 		}
 	}
+	
 	//Box-Muller algorithm used to generate Gaussian (normal) distribution
 	// http://en.wikipedia.org/wiki/Box-Muller_transform
 	//http://www.cs.princeton.edu/courses/archive/fall09/cos126/assignments/StdGaussian.java.html
@@ -111,10 +111,6 @@ public class NodeGaussian extends SimEnt {
 	      double z = x * Math.sqrt(-2.0 * Math.log(r) / r);
 	      z = z * sigma + mu;
 
-	      return z;
-	      
-	      
-		
-	}
-	
+	      return z;	
+	}	
 }

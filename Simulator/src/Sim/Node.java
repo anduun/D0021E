@@ -6,9 +6,11 @@ package Sim;
 public class Node extends SimEnt {
 	private NetworkAddr _id;
 	private SimEnt _peer;
-	private int _sentmsg=0;
+	private int _sentmsg = 0;
 	private int _seq = 0;
-
+	
+	// Used for the sink class
+	private int _messagesReceived = 0;
 	
 	public Node (int network, int node)
 	{
@@ -33,6 +35,16 @@ public class Node extends SimEnt {
 	public NetworkAddr getAddr()
 	{
 		return _id;
+	}
+	
+	public int getMessagesSent()
+	{
+		return _sentmsg;
+	}
+	
+	public int getMessagesReceived()
+	{
+		return _messagesReceived;
 	}
 	
 //**********************************************************************************	
@@ -73,6 +85,7 @@ public class Node extends SimEnt {
 		}
 		if (ev instanceof Message)
 		{
+			_messagesReceived++;
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives message with seq: "+((Message) ev).seq() + " at time "+SimEngine.getTime());
 			
 		}

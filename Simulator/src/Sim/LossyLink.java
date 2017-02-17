@@ -6,6 +6,7 @@ public class LossyLink extends Link{
 	private SimEnt _connectorA=null;
 	private SimEnt _connectorB=null;
 	private double _delay;
+	private int _delayRange;
 	private double _jitter;
 	private int _dropPacketProbability;
 	private double _prevTransit = 0;
@@ -13,12 +14,14 @@ public class LossyLink extends Link{
 	
 	private Random rand = new Random();
 	
-	// delay in time units, previous jitter in time units, % chance to drop packet
+	// delay range in time units from 0 to delay range, used to randomize delay
+	// start jitter in time units
+	// % chance to drop packet
 	
-	public LossyLink(int startdelay, int prevJitter, int dropPacketProbability){
+	public LossyLink(int delayRange, int startJitter, int dropPacketProbability){
 		super();
-		_delay = startdelay;
-		_jitter = prevJitter;
+		_delayRange = delayRange;
+		_jitter = startJitter;
 		_dropPacketProbability = dropPacketProbability;
 	}
 	
@@ -51,10 +54,12 @@ public class LossyLink extends Link{
 			else
 			{
 				
-				// If the packet isn't dropped, calculate the jitter and forward the message
+				// If the packet isn't dropped, calculate the jitter,
+				// randomize delay and forward the message
 				
 				calculateJitter(SimEngine.getTime(), ((Message) ev).getTimeSent());
-				_delay = rand.nextInt(10)+10;
+				_delay = rand.nextInt(_delayRange);
+				
 				if (src == _connectorA)
 				{
 					send(_connectorB, ev, _delay+_jitter);
@@ -70,9 +75,9 @@ public class LossyLink extends Link{
 	// Calculates jitter according RFC 1889
 	private void calculateJitter(double timeArrival, double timeSent)
 	{
-//		System.out.println("Arrival "+timeArrival+" Sent "+timeSent);
+		//System.out.println("Arrival "+timeArrival+" Sent "+timeSent);
 		double transit = timeArrival - timeSent;	// Arrival Time - Time Sent
-//		System.out.println("Transit "+transit);
+		//System.out.println("Transit "+transit);
 		double deviation = transit - _prevTransit;
 		_prevTransit = transit;
 		if(deviation < 0)
@@ -80,6 +85,7 @@ public class LossyLink extends Link{
 			deviation = -deviation;
 		}
 		_jitter = _jitter + ((1./16.) * (deviation - _jitter));
+		//System.out.println("Jitter: " + _jitter);
 	}
 	
 }

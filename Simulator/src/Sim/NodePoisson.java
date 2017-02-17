@@ -79,7 +79,6 @@ public class NodePoisson extends SimEnt {
 		if (ev instanceof Message)
 		{
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives message with seq: "+((Message) ev).seq() + " at time "+SimEngine.getTime());
-			
 		}
 	}
 	

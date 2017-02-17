@@ -3,7 +3,7 @@ package Sim;
 import java.util.TreeMap;
 
 // This class implements the simulation engine
-// As long as there are events in the queue, the simulaiton 
+// As long as there are events in the queue, the simulation 
 // will run. When empty, the engine stops
 
 public final class SimEngine implements Runnable {

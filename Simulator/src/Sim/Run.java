@@ -8,8 +8,8 @@ public class Run {
  		//Creates two links
 //		Link link1 = new Link();
 //		Link link2 = new Link();
- 		Link link1 = new LossyLink(5,5,0);
-		Link link2 = new LossyLink(5,5,0);
+ 		Link link1 = new LossyLink(5,0,0);
+		Link link2 = new LossyLink(5,0,0);
 		
 		// Create two end hosts that will be
 		// communicating via the router
@@ -31,7 +31,7 @@ public class Run {
 		
 		// Generate some traffic
 		// host1 will send 3 messages with time interval 5 to network 2, node 1. Sequence starts with number 1
-		host1.StartSending(2, 2, 3, 5, 1); 
+		host1.StartSending(2, 2, 10, 5, 1); 
 		// host2 will send 2 messages with time interval 10 to network 1, node 1. Sequence starts with number 10
 		host2.StartSending(1, 1, 10000, 10, 10); 
 		
@@ -42,13 +42,14 @@ public class Run {
 		try
 		{
 			t.join();
+			System.out.println("Node 1.1 sent a total of "+host1.getMessagesSent()+" messages");
+			System.out.println("Node 1.1 received a total of "+host1.getMessagesReceived()+" messages");
+			System.out.println("Node 2.1 sent a total of "+host2.getMessagesSent()+" messages");
+			System.out.println("Node 2.1 received a total of "+host2.getMessagesReceived()+" messages");
 		}
 		catch (Exception e)
 		{
 			System.out.println("The motor seems to have a problem, time for service?");
-		}		
-
-
-
+		}
 	}
 }
