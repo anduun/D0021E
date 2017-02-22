@@ -58,7 +58,7 @@ public class Node extends SimEnt {
 	private int _trafficDistributionType = 0; // 0 = CBR, 1 = Gaussian, 2 = Poisson
 	private double _lambda;			// average number of events per interval, used for Poisson
 	
-	public void StartSendingCBR(int network, int node, int number, int timeInterval, int startSeq)
+	public void startSendingCBR(int network, int node, int number, int timeInterval, int startSeq)
 	{
 		_stopSendingAfter = number;
 		_timeBetweenSending = timeInterval;
@@ -69,7 +69,7 @@ public class Node extends SimEnt {
 		send(this, new TimerEvent(),0);
 	}
 	
-	public void StartSendingGaussian(int network, int node, int number, int timeInterval, int startSeq)
+	public void startSendingGaussian(int network, int node, int number, int timeInterval, int startSeq)
 	{
 		_stopSendingAfter = number;
 		_timeBetweenSending = timeInterval;
@@ -80,7 +80,7 @@ public class Node extends SimEnt {
 		send(this, new TimerEvent(),0);
 	}
 	
-	public void StartSendingPoisson(int network, int node, int number, int timeInterval, int startSeq, double lambda)
+	public void startSendingPoisson(int network, int node, int number, int timeInterval, int startSeq, double lambda)
 	{
 		_stopSendingAfter = number;
 		_timeBetweenSending = timeInterval;
@@ -115,7 +115,7 @@ public class Node extends SimEnt {
 					timeBetweenSending = _timeBetweenSending + generatePoisson(_lambda);
 				}
 				
-				send(this, new TimerEvent(),timeBetweenSending);
+				send(this, new TimerEvent(), timeBetweenSending);
 				System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" sent message with seq: "+_seq + " at time "+SimEngine.getTime());
 				_seq++;
 			}

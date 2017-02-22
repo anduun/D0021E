@@ -49,6 +49,19 @@ public class Router extends SimEnt{
 		return routerInterface;
 	}
 	
+	public void updateInterface(NetworkAddr source, int newInterfaceIndex){
+		for(int i = 0; i < _interfaces; i++){
+			if (_routingTable[i] != null){
+				if(((Node) _routingTable[i].node()).getAddr() == source){
+					RouteTableEntry rte = _routingTable[i];
+					_routingTable[i] = null;
+					_routingTable[newInterfaceIndex] = rte;
+					break;
+				}
+			}
+		}
+	}
+	
 	
 	// When messages are received at the router this method is called
 	

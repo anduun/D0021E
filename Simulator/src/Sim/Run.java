@@ -6,15 +6,13 @@ public class Run {
 	public static void main (String [] args)
 	{
  		//Creates two links
-//		Link link1 = new Link();
-//		Link link2 = new Link();
  		Link link1 = new LossyLink(5,0,0);
 		Link link2 = new LossyLink(5,0,0);
 		
 		// Create two end hosts that will be
 		// communicating via the router
 		Node host1 = new Node(1,1);
-		Node host2 = new Node(2,1);
+		Node host2 = new Node(2,2);
 
 		//Connect links to hosts
 		host1.setPeer(link1);
@@ -25,15 +23,37 @@ public class Run {
 		// the host connected to the other
 		// side of the link is also provided
 		// Note. A switch is created in same way using the Switch class
-		Router routeNode = new Router(2);
+		Router routeNode = new Router(4);
 		routeNode.connectInterface(0, link1, host1);
 		routeNode.connectInterface(1, link2, host2);
 		
+		
+		
+		
+		
+		
+		Link linkTest = new Link();
+		Node hostTest = new Node(3,3);
+		hostTest.setPeer(linkTest);
+		routeNode.connectInterface(2, linkTest, hostTest);
+		
+		System.out.println();
+		
+		hostTest.startSendingCBR(1, 1, 10, 2, 0);
+		
+		routeNode.updateInterface(hostTest.getAddr(), 3);
+		
+		
+		
+		
+		
+		
+		
 		// Generate some traffic
 		// host1 will send 3 messages with time interval 5 to network 2, node 1. Sequence starts with number 1
-		host1.StartSendingGaussian(2, 2, 10, 5, 1);
+		host1.startSendingCBR(3, 3, 10, 2, 50);
 		// host2 will send 2 messages with time interval 10 to network 1, node 1. Sequence starts with number 10
-		host2.StartSendingPoisson(1, 1, 10, 10, 10, 2);
+		host2.startSendingCBR(3, 3, 10, 2, 100);
 		
 		// Start the simulation engine and of we go!
 		Thread t=new Thread(SimEngine.instance());
@@ -42,12 +62,13 @@ public class Run {
 		try
 		{
 			t.join();
-			System.out.println("**********************************************************************");
+			System.out.println("************************************************************");
 			System.out.println("Node 1.1 sent a total of "+host1.getMessagesSent()+" messages");
 			System.out.println("Node 1.1 received a total of "+host1.getMessagesReceived()+" messages");
 			System.out.println("Node 2.1 sent a total of "+host2.getMessagesSent()+" messages");
 			System.out.println("Node 2.1 received a total of "+host2.getMessagesReceived()+" messages");
-			System.out.println("**********************************************************************");
+			System.out.println("NodeTest 1.1 sent a total of "+hostTest.getMessagesSent()+" messages");
+			System.out.println("NodeTest 1.1 received a total of "+hostTest.getMessagesReceived()+" messages");
 		}
 		catch (Exception e)
 		{
