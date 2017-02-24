@@ -57,6 +57,8 @@ public class Node extends SimEnt {
 	private int _toHost = 0;
 	private int _trafficDistributionType = 0; // 0 = CBR, 1 = Gaussian, 2 = Poisson
 	private double _lambda;			// average number of events per interval, used for Poisson
+	private int changeInterfaceAfterPackets = -1;
+	private int newInterfaceNumber = -1;
 	
 	public void startSendingCBR(int network, int node, int number, int timeInterval, int startSeq)
 	{
@@ -92,6 +94,11 @@ public class Node extends SimEnt {
 		send(this, new TimerEvent(),0);
 	}
 	
+	public void changeInterface(int interfaceNumber, int packetsSent){
+		changeInterfaceAfterPackets = packetsSent;
+		newInterfaceNumber = interfaceNumber;
+	}
+	
 //**********************************************************************************	
 	
 	// This method is called upon that an event destined for this node triggers.
@@ -118,6 +125,11 @@ public class Node extends SimEnt {
 				send(this, new TimerEvent(), timeBetweenSending);
 				System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" sent message with seq: "+_seq + " at time "+SimEngine.getTime());
 				_seq++;
+				
+				if(_sentmsg == changeInterfaceAfterPackets){
+					System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" requests change interface to interface number "+newInterfaceNumber+" at time "+SimEngine.getTime());
+					send(_peer, new ChangeInterface(_id, newInterfaceNumber), 0);
+				}
 			}
 		}
 		if (ev instanceof Message)

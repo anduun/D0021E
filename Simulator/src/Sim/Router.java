@@ -49,6 +49,8 @@ public class Router extends SimEnt{
 		return routerInterface;
 	}
 	
+	// Moves a connection from one interface to another
+	
 	public void updateInterface(NetworkAddr source, int newInterfaceIndex){
 		for(int i = 0; i < _interfaces; i++){
 			if (_routingTable[i] != null){
@@ -56,6 +58,7 @@ public class Router extends SimEnt{
 					RouteTableEntry rte = _routingTable[i];
 					_routingTable[i] = null;
 					_routingTable[newInterfaceIndex] = rte;
+					System.out.println("Router moved Node "+source.networkId()+"."+source.nodeId()+" from interface "+i+" to "+newInterfaceIndex);
 					break;
 				}
 			}
@@ -73,7 +76,17 @@ public class Router extends SimEnt{
 			SimEnt sendNext = getInterface(((Message) event).destination().networkId());
 			System.out.println("Router sends to node: " + ((Message) event).destination().networkId()+"." + ((Message) event).destination().nodeId());		
 			send (sendNext, event, _now);
+		}
+		else if (event instanceof ChangeInterface)
+		{
+			updateInterface(((ChangeInterface) event).source(), ((ChangeInterface) event).newInterfaceNumber());
+		}
+	}
 	
-		}	
+	public void printTable(){
+		System.out.println("PRINTING TABLE __________________________________________________");
+		for(int i = 0; i < _routingTable.length; i++){
+			System.out.println(_routingTable[i]);
+		}
 	}
 }
