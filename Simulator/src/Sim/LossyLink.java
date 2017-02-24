@@ -40,7 +40,7 @@ public class LossyLink extends Link{
 	
 	public void recv(SimEnt src, Event ev)
 	{
-		if (ev instanceof Message)
+		if (ev instanceof Message || ev instanceof ChangeInterface)
 		{
 			System.out.println("Link recv msg, passes it through");
 			

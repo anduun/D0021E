@@ -123,7 +123,7 @@ public class Node extends SimEnt {
 				}
 				
 				send(this, new TimerEvent(), timeBetweenSending);
-				System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" sent message with seq: "+_seq + " at time "+SimEngine.getTime());
+				System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" sent message with seq: "+_seq + " at time "+SimEngine.getTime());
 				_seq++;
 				
 				if(_sentmsg == changeInterfaceAfterPackets){

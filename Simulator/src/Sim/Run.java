@@ -28,8 +28,8 @@ public class Run {
 		routeNode.connectInterface(1, link2, host2);
 		
 		// Generate some traffic
-		// host1 will send 10 messages with time interval 2 to network 2, node 1. Sequence starts with number 1
-		host1.startSendingCBR(2, 1, 10, 2, 1);
+		// host1 will send 10 messages with time interval 2 to network 2, node 2. Sequence starts with number 1
+		host1.startSendingCBR(2, 2, 10, 2, 1);
 		// host2 will send 15 messages with time interval 2 to network 1, node 1. Sequence starts with number 21
 		host2.startSendingCBR(1, 1, 15, 2, 21);
 		

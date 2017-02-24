@@ -58,13 +58,12 @@ public class Router extends SimEnt{
 					RouteTableEntry rte = _routingTable[i];
 					_routingTable[i] = null;
 					_routingTable[newInterfaceIndex] = rte;
-					System.out.println("Router moved Node "+source.networkId()+"."+source.nodeId()+" from interface "+i+" to "+newInterfaceIndex);
+					System.out.println("Router moves Node "+source.networkId()+"."+source.nodeId()+" from interface "+i+" to "+newInterfaceIndex);
 					break;
 				}
 			}
 		}
 	}
-	
 	
 	// When messages are received at the router this method is called
 	
@@ -80,13 +79,6 @@ public class Router extends SimEnt{
 		else if (event instanceof ChangeInterface)
 		{
 			updateInterface(((ChangeInterface) event).source(), ((ChangeInterface) event).newInterfaceNumber());
-		}
-	}
-	
-	public void printTable(){
-		System.out.println("PRINTING TABLE __________________________________________________");
-		for(int i = 0; i < _routingTable.length; i++){
-			System.out.println(_routingTable[i]);
 		}
 	}
 }
