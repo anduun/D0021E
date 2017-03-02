@@ -12,7 +12,11 @@ public class Node extends SimEnt {
 	// Used for the sink class
 	private int _messagesReceived = 0;
 	
-	public Node (int network, int node)
+	// Home Agent variables
+	private Router _homeAgent;
+	private boolean onForeignNetwork = false;
+	
+	public Node(int network, int node)
 	{
 		super();
 		_id = new NetworkAddr(network, node);
@@ -20,15 +24,20 @@ public class Node extends SimEnt {
 	
 	
 	// Sets the peer to communicate with. This node is single homed
-	
-	public void setPeer (SimEnt peer)
+	public void setPeer(SimEnt peer)
 	{
 		_peer = peer;
 		
-		if(_peer instanceof Link )
+		if(_peer instanceof Link)
 		{
 			 ((Link) _peer).setConnector(this);
 		}
+	}
+	
+	// Sets the Home Agent Router
+	public void setHomeAgent(Router homeAgent)
+	{
+		_homeAgent = homeAgent;
 	}
 	
 	
@@ -68,9 +77,9 @@ public class Node extends SimEnt {
 		_toHost = node;
 		_seq = startSeq;
 		_trafficDistributionType = 0;
-		send(this, new TimerEvent(),0);
+		send(this, new TimerEvent(), 0);
 	}
-	
+
 	public void startSendingGaussian(int network, int node, int number, int timeInterval, int startSeq)
 	{
 		_stopSendingAfter = number;
@@ -79,9 +88,9 @@ public class Node extends SimEnt {
 		_toHost = node;
 		_seq = startSeq;
 		_trafficDistributionType = 1;
-		send(this, new TimerEvent(),0);
+		send(this, new TimerEvent(), 0);
 	}
-	
+
 	public void startSendingPoisson(int network, int node, int number, int timeInterval, int startSeq, double lambda)
 	{
 		_stopSendingAfter = number;
@@ -91,26 +100,50 @@ public class Node extends SimEnt {
 		_seq = startSeq;
 		_trafficDistributionType = 2;
 		_lambda = lambda;
-		send(this, new TimerEvent(),0);
+		send(this, new TimerEvent(), 0);
 	}
-	
-	public void changeInterface(int interfaceNumber, int packetsSent){
+
+	public void changeInterface(int interfaceNumber, int packetsSent)
+	{
 		changeInterfaceAfterPackets = packetsSent;
 		newInterfaceNumber = interfaceNumber;
+	}
+
+	// timeToMove is the sim time when the Node should move to another network
+	public void moveToForeign(Router foreignAgent, int timeToMove)
+	{
+		// System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" sent Agent Solicitation at time "+SimEngine.getTime());
+		send(foreignAgent, new AgentSolicitation(this), timeToMove);
+	}
+	
+	// timeToMove is the sim time when the Node should move back to its home network
+	public void moveBackHome(int timeToMove)
+	{
+		// Send Deregistration message to HA and update links etc
+		onForeignNetwork = false;
+		send(_homeAgent, new Deregistration(this), timeToMove);
 	}
 	
 //**********************************************************************************	
 	
 	// This method is called upon that an event destined for this node triggers.
-	
 	public void recv(SimEnt src, Event ev)
 	{
 		if (ev instanceof TimerEvent)
 		{			
-			if (_stopSendingAfter > _sentmsg)
+			if(_stopSendingAfter > _sentmsg)
 			{
 				_sentmsg++;
-				send(_peer, new Message(_id, new NetworkAddr(_toNetwork, _toHost),_seq),0);
+				
+				// If the Node is connected to a Home Agent it should send the message through it
+				if(onForeignNetwork == true)
+				{
+					send(_homeAgent, new Message(_id, new NetworkAddr(_toNetwork, _toHost), _seq), 0);
+				}
+				else
+				{
+					send(_peer, new Message(_id, new NetworkAddr(_toNetwork, _toHost), _seq), 0);
+				}
 				
 				double timeBetweenSending = 0;
 				
@@ -132,11 +165,33 @@ public class Node extends SimEnt {
 				}
 			}
 		}
-		if (ev instanceof Message)
+		else if (ev instanceof Message)
 		{
 			_messagesReceived++;
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives message with seq: "+((Message) ev).seq() + " at time "+SimEngine.getTime());
 			
+		}
+		else if (ev instanceof AgentAdvertisement)
+		{
+			// Handle the AgentAdvertisement things (Care-of Address?)
+			System.out.println();
+			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives Agent Advertisement at time "+SimEngine.getTime());
+			System.out.println();
+			
+			// Send a Registration Request to Home Agent
+			// Registration Request can include a Lifetime parameter (not included in our solution)
+			send(_homeAgent, new RegistrationRequest(this), 0);
+		}
+		else if (ev instanceof RegistrationReply)
+		{
+			// Registration to Home Agent is ok
+			onForeignNetwork = true;
+			
+			System.out.println();
+			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives Registration Reply at time "+SimEngine.getTime());
+			System.out.println();
+			
+			// Set Lifetime value (not included in our solution)
 		}
 	}
 	
@@ -196,9 +251,9 @@ public class Node extends SimEnt {
 	// amount is amount of numbers generated
 	// used for testing Poisson distribution generation
 	// paste results into excel to see the curve
-	private void printPoissonDistribution(double lambda, int amount){
-		for(int i = 0; i < amount; i++){
-			System.out.println(generatePoisson(lambda));
-		}
-	}	
+//	private void printPoissonDistribution(double lambda, int amount){
+//		for(int i = 0; i < amount; i++){
+//			System.out.println(generatePoisson(lambda));
+//		}
+//	}
 }

@@ -5,6 +5,15 @@ package Sim;
 public class Run {
 	public static void main (String [] args)
 	{
+		
+		//		[Static Node]
+		//			|
+		//		[Router 1]--------------[Router 2]
+		//		(Home Agent)			(Foreign Agent)
+		//			|						|
+		//		[Mobile Node]	-->		[Mobile Node]
+		//		(Position 1)			(Position 2)
+		
  		//Creates two links
  		Link link1 = new Link();
 		Link link2 = new Link();
@@ -23,21 +32,29 @@ public class Run {
 		// the host connected to the other
 		// side of the link is also provided
 		// Note. A switch is created in same way using the Switch class
-		Router routeNode = new Router(3);
+		Router routeNode = new Router(10);
+		Router routeNode2 = new Router(5);
 		routeNode.connectInterface(0, link1, host1);
 		routeNode.connectInterface(1, link2, host2);
 		
+		
+		
+		// Set host1 Home Agent to routeNode
+		host1.setHomeAgent(routeNode);
+		
+		// Move host1 to routerNode2 after 10 sim seconds has passed
+		host1.moveToForeign(routeNode2, 10);
+		
+		// Move host1 back to routerNode after 20 sim seconds has passed
+		host1.moveBackHome(20);
+		
+		
+		
 		// Generate some traffic
 		// host1 will send 10 messages with time interval 2 to network 2, node 2. Sequence starts with number 1
-		host1.startSendingCBR(2, 2, 10, 2, 1);
+		host1.startSendingCBR(2, 2, 10, 3, 1);
 		// host2 will send 15 messages with time interval 2 to network 1, node 1. Sequence starts with number 21
 		host2.startSendingCBR(1, 1, 15, 2, 21);
-		
-		
-		
-		// host1 will change interface from 0 to 2 after it has sent 5 messages
-		host1.changeInterface(2, 5);
-		
 		
 		
 		// Start the simulation engine and of we go!

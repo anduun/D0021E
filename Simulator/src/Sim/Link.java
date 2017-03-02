@@ -30,6 +30,7 @@ public class Link extends SimEnt{
 		if (ev instanceof Message || ev instanceof ChangeInterface)
 		{
 			System.out.println("Link recv msg, passes it through");
+			
 			if (src == _connectorA)
 			{
 				send(_connectorB, ev, _now);
