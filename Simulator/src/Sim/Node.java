@@ -160,7 +160,8 @@ public class Node extends SimEnt {
 				_seq++;
 				
 				if(_sentmsg == changeInterfaceAfterPackets){
-					System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" requests change interface to interface number "+newInterfaceNumber+" at time "+SimEngine.getTime());
+					System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" requests change interface to interface number "
+							+ newInterfaceNumber + " at time " + SimEngine.getTime());
 					send(_peer, new ChangeInterface(_id, newInterfaceNumber), 0);
 				}
 			}

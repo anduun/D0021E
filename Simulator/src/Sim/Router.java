@@ -81,7 +81,8 @@ public class Router extends SimEnt{
 					RouteTableEntry rte = _routingTable[i];
 					_routingTable[i] = null;
 					_routingTable[newInterfaceIndex] = rte;
-					System.out.println("Router moves Node "+source.networkId()+"."+source.nodeId()+" from interface "+i+" to "+newInterfaceIndex);
+					System.out.println("Router moved Node "+source.networkId()+"."+source.nodeId()
+										+ " from interface "+i+" to "+newInterfaceIndex);
 					break;
 				}
 			}
