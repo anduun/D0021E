@@ -34,6 +34,11 @@ public class Node extends SimEnt {
 		}
 	}
 	
+	public SimEnt getPeer()
+	{
+		return _peer;
+	}
+	
 	// Sets the Home Agent Router
 	public void setHomeAgent(Router homeAgent)
 	{
@@ -109,18 +114,17 @@ public class Node extends SimEnt {
 		newInterfaceNumber = interfaceNumber;
 	}
 
+	// newNetworkID is the new network ID the Node gets when it moves to the foreign network
 	// timeToMove is the sim time when the Node should move to another network
-	public void moveToForeign(Router foreignAgent, int timeToMove)
+	public void moveToForeign(Router foreignAgent, int newNetworkID, int timeToMove)
 	{
-		// System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" sent Agent Solicitation at time "+SimEngine.getTime());
-		send(foreignAgent, new AgentSolicitation(this), timeToMove);
+		send(foreignAgent, new AgentSolicitation(this, newNetworkID), timeToMove);
 	}
 	
 	// timeToMove is the sim time when the Node should move back to its home network
 	public void moveBackHome(int timeToMove)
 	{
 		// Send Deregistration message to HA and update links etc
-		onForeignNetwork = false;
 		send(_homeAgent, new Deregistration(this), timeToMove);
 	}
 	
@@ -138,6 +142,9 @@ public class Node extends SimEnt {
 				// If the Node is connected to a Home Agent it should send the message through it
 				if(onForeignNetwork == true)
 				{
+					System.out.println();
+					System.out.println("Node sends message through HomeAgent!");
+					System.out.println();
 					send(_homeAgent, new Message(_id, new NetworkAddr(_toNetwork, _toHost), _seq), 0);
 				}
 				else
@@ -160,8 +167,7 @@ public class Node extends SimEnt {
 				_seq++;
 				
 				if(_sentmsg == changeInterfaceAfterPackets){
-					System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" requests change interface to interface number "
-							+ newInterfaceNumber + " at time " + SimEngine.getTime());
+					System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" requests change interface to interface number "+newInterfaceNumber+" at time "+SimEngine.getTime());
 					send(_peer, new ChangeInterface(_id, newInterfaceNumber), 0);
 				}
 			}
@@ -174,14 +180,22 @@ public class Node extends SimEnt {
 		}
 		else if (ev instanceof AgentAdvertisement)
 		{
-			// Handle the AgentAdvertisement things (Care-of Address?)
+			
 			System.out.println();
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives Agent Advertisement at time "+SimEngine.getTime());
+			System.out.println("Change Network ID from "+_id.networkId()+" to "+((AgentAdvertisement) ev).getNewNetworkID());
+			System.out.println("Send a Registration Request with old Network ID "+_id.networkId()+" to Home Agent");
 			System.out.println();
+			
+			// oldNetworkID is used so the Node can identify itself at its Home Agent
+			int oldNetworkID = _id.networkId();
+			
+			// Handle the AgentAdvertisement things (Care-of Address)
+			_id = new NetworkAddr(((AgentAdvertisement) ev).getNewNetworkID(), _id.nodeId());
 			
 			// Send a Registration Request to Home Agent
 			// Registration Request can include a Lifetime parameter (not included in our solution)
-			send(_homeAgent, new RegistrationRequest(this), 0);
+			send(_homeAgent, new RegistrationRequest(this, oldNetworkID), 0);
 		}
 		else if (ev instanceof RegistrationReply)
 		{
@@ -189,10 +203,19 @@ public class Node extends SimEnt {
 			onForeignNetwork = true;
 			
 			System.out.println();
-			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives Registration Reply at time "+SimEngine.getTime());
+			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" received Registration Reply at time "+SimEngine.getTime());
 			System.out.println();
 			
 			// Set Lifetime value (not included in our solution)
+		}
+		else if (ev instanceof DeregistrationReply)
+		{
+			System.out.println();
+			System.out.println("Node "+_id.networkId()+"."+_id.nodeId()+" received Deregistration Reply at time "+SimEngine.getTime());
+			System.out.println("Change Network ID from "+_id.networkId()+" to "+((DeregistrationReply) ev).getOldNetworkID());
+			System.out.println();
+			_id = new NetworkAddr(((DeregistrationReply) ev).getOldNetworkID(), _id.nodeId());
+			onForeignNetwork = false;
 		}
 	}
 	

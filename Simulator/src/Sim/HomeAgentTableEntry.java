@@ -1,25 +1,29 @@
 package Sim;
 
+// TODO: clean this
 // This class represent a routing table for the Home Agent
 // by including the node connected to the Home Agent
 // Link is not used in this case because our solution
 // connects the Node directly to the Home Agent
 
-public class HomeAgentTableEntry extends TableEntry{
-
-	HomeAgentTableEntry(SimEnt link, SimEnt node)
+public class HomeAgentTableEntry{
+	int networkID;
+	SimEnt node;
+	
+	HomeAgentTableEntry(int networkID, SimEnt node)
 	{
-		super(link, node);
+		this.networkID = networkID;
+		this.node = node;
 	}
 	
-	public SimEnt link()
+	public int getNetworkID()
 	{
-		return super.link();
+		return networkID;
 	}
 
-	public SimEnt node()
+	public SimEnt getNode()
 	{
-		return super.node();
+		return node;
 	}
 	
 }

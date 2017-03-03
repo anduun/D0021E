@@ -1,11 +1,18 @@
 package Sim;
 
+// Sends information about the Foreign Router to the Mobile Node
+// Gives the Mobile Node a new Network ID to use on the Foreign Network
+
 public class AgentAdvertisement implements Event{
+	private int _newNetworkID;
 	
-	 AgentAdvertisement()
+	AgentAdvertisement(int newNetworkID)
 	{
-		 // Does nothing in our solution except confirming that a Router exists
-		 // Can send a care-of address, etc
+		 _newNetworkID = newNetworkID;
+	}
+	
+	public int getNewNetworkID(){
+		return _newNetworkID;
 	}
 
 	public void entering(SimEnt locale)

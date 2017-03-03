@@ -11,7 +11,7 @@ public class Run {
 		//		[Router 1]--------------[Router 2]
 		//		(Home Agent)			(Foreign Agent)
 		//			|						|
-		//		[Mobile Node]	-->		[Mobile Node]
+		//		[Mobile Node]	 -->	[Mobile Node]
 		//		(Position 1)			(Position 2)
 		
  		//Creates two links
@@ -42,10 +42,10 @@ public class Run {
 		// Set host1 Home Agent to routeNode
 		host1.setHomeAgent(routeNode);
 		
-		// Move host1 to routerNode2 after 10 sim seconds has passed
-		host1.moveToForeign(routeNode2, 10);
+		// Move host1 to routerNode2 with networkID 5 after 10 time units has passed
+		host1.moveToForeign(routeNode2, 5, 10);
 		
-		// Move host1 back to routerNode after 20 sim seconds has passed
+		// Move host1 back to routerNode after 20 time units has passed
 		host1.moveBackHome(20);
 		
 		
