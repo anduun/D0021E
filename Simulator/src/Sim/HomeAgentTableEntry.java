@@ -1,9 +1,8 @@
 package Sim;
 
-// TODO: clean this
 // This class represent a routing table for the Home Agent
 // by including the node connected to the Home Agent
-// Link is not used in this case because our solution
+// and its old network ID previously used
 // connects the Node directly to the Home Agent
 
 public class HomeAgentTableEntry{
@@ -27,3 +26,10 @@ public class HomeAgentTableEntry{
 	}
 	
 }
+
+
+
+
+
+
+

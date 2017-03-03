@@ -172,8 +172,7 @@ public class Router extends SimEnt{
 		}
 		else if (event instanceof AgentSolicitation)
 		{
-			// Give the Node a Care-of Address, etc - we're not doing this
-			// because the node can talk directly to it's own Home Agent
+			// Give the Node a Care-of Address
 			
 			Node sourceNode = (Node) ((AgentSolicitation) event).source();
 			int interfaceNumber = getFirstFreeInterfaceIndex();
@@ -181,7 +180,8 @@ public class Router extends SimEnt{
 			connectInterface(interfaceNumber, sourceNode.getPeer(), sourceNode);
 			
 			System.out.println();
-			System.out.println("Foreign Router received a Agent Solicitation from Node "+sourceNode.getAddr().networkId()+"."+sourceNode.getAddr().networkId()+" at time "+SimEngine.getTime());
+			System.out.println("Foreign Router received a Agent Solicitation from Node "+sourceNode.getAddr().networkId()
+											+"."+sourceNode.getAddr().networkId()+" at time "+SimEngine.getTime());
 			System.out.println();
 			
 			send(sourceNode, new AgentAdvertisement(((AgentSolicitation) event).getNewNetworkID()), 0);
@@ -191,7 +191,8 @@ public class Router extends SimEnt{
 			Node sourceNode = (Node) ((RegistrationRequest) event).source();
 			
 			System.out.println();
-			System.out.println("Home Router received a Registration Request from Node "+sourceNode.getAddr().networkId()+"."+sourceNode.getAddr().nodeId()+" at time "+SimEngine.getTime());
+			System.out.println("Home Agent received a Registration Request from Node "+sourceNode.getAddr().networkId()
+											+"."+sourceNode.getAddr().nodeId()+" at time "+SimEngine.getTime());
 			System.out.println("(Known as Node "+((RegistrationRequest) event).getOldNetworkID()+"."+sourceNode.getAddr().nodeId()+" to Home Agent)");
 			System.out.println("Sends a Registration Reply back to Node");
 			System.out.println();
@@ -213,7 +214,8 @@ public class Router extends SimEnt{
 			int oldNetworkID = fetchOldNetworkID(sourceNode);
 			
 			System.out.println();
-			System.out.println("A Router received a Deregistration from Node "+sourceNode.getAddr().networkId()+"."+sourceNode.getAddr().nodeId()+" at time "+SimEngine.getTime());
+			System.out.println("Home Agent received a Deregistration from Node "+sourceNode.getAddr().networkId()
+											+"."+sourceNode.getAddr().nodeId()+" at time "+SimEngine.getTime());
 			System.out.println("Sends a Deregistration Reply back to Node with old Network ID "+oldNetworkID);
 			System.out.println();
 			
