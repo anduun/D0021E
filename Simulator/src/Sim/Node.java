@@ -10,13 +10,8 @@ public class Node extends SimEnt {
 	private int _sentmsg=0;
 	private int _seq = 0;
 
-	
 	// Used for the sink class
 	private int _messagesReceived = 0;
-	
-	// Home Agent variables
-	private Router _homeAgent;
-	private boolean onForeignNetwork = false;
 	
 	// TCP variables
 	private Random rand = new Random();
@@ -56,7 +51,7 @@ public class Node extends SimEnt {
 	private int _toNetwork = 0;
 	private int _toHost = 0;
 	
-	public void StartSending(int network, int node, int number, int timeInterval, int startSeq)
+	public void startSending(int network, int node, int number, int timeInterval, int startSeq)
 	{
 		_stopSendingAfter = number;
 		_timeBetweenSending = timeInterval;
@@ -95,10 +90,9 @@ public class Node extends SimEnt {
 				_seq++;
 			}
 		}
-		if (ev instanceof Message)
+		else if (ev instanceof Message)
 		{
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives message with seq: "+((Message) ev).seq() + " at time "+SimEngine.getTime());
-			
 		}
 	}
 }

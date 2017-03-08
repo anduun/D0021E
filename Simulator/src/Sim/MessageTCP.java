@@ -1,9 +1,7 @@
 package Sim;
 
 
-// This class implements an event that send a Message, currently the only
-// fields in the message are who the sender is, the destination and a sequence 
-// number
+// This class implements an event that sends a TCP Message
 
 public class MessageTCP implements Event{
 	private NetworkAddr _source;
