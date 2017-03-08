@@ -161,13 +161,9 @@ public class Node extends SimEnt {
 			{
 				System.out.println("-----------------------------------------------");
 				System.out.println();
-				System.out.println("FIN1 received");
+				System.out.println("ACK received");
 				System.out.println("seqNr: " + ((MessageTCP) ev).getSeqNr());
 				System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
-				System.out.println();
-				System.out.println("Send ACK");
-				System.out.println();
-				System.out.println("Send FIN2");
 				System.out.println();
 				System.out.println("-----------------------------------------------");
 				
@@ -189,11 +185,8 @@ public class Node extends SimEnt {
 				latestAckNr = ((MessageTCP) ev).getSeqNr() + 1;
 				send(_peer, new MessageTCP(_id, dest, _seq, latestAckNr, 1, 0, 0), 0);
 			}
-			else
+			else if(msgACKFlag == 1 && msgSYNFlag == 0 && msgFINFlag == 1)
 			{
-				System.out.println("Something went wrong in Node "+_id.networkId()+"."+_id.nodeId());
-			}
-			else if(((MessageTCP) ev).getACKFlag() == 1 && ((MessageTCP) ev).getSYNFlag() == 0 &&((MessageTCP) ev).getFINFlag() == 1){
 				System.out.println("-----------------------------------------------");
 				System.out.println();
 				System.out.println("FIN2 received");
@@ -205,7 +198,10 @@ public class Node extends SimEnt {
 				System.out.println("-----------------------------------------------");
 				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
 				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), -1, ackNr, 1 , 0 ,0), 0);
-				
+			}
+			else
+			{
+				System.out.println("Something went wrong in Node "+_id.networkId()+"."+_id.nodeId());
 			}
 		}
 
