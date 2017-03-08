@@ -10,9 +10,10 @@ public class MessageTCP implements Event{
 	private int _ackNr=0;
 	private int _ACKFlag=0;
 	private int _SYNFlag=0;
+	private int _FINFlag=0;
 	private double _timeSent;
 	
-	MessageTCP (NetworkAddr from, NetworkAddr to, int seqNr, int ackNr, int ACKFlag, int SYNFlag)
+	MessageTCP (NetworkAddr from, NetworkAddr to, int seqNr, int ackNr, int ACKFlag, int SYNFlag, int FINFlag)
 	{
 		_source = from;
 		_destination = to;
@@ -20,6 +21,7 @@ public class MessageTCP implements Event{
 		_ackNr=ackNr;
 		_ACKFlag=ACKFlag;
 		_SYNFlag=SYNFlag;
+		_FINFlag=FINFlag;
 		_timeSent = SimEngine.getTime();
 	}
 	
@@ -51,6 +53,10 @@ public class MessageTCP implements Event{
 	public int getSYNFlag()
 	{
 		return _SYNFlag; 
+	}
+	public int getFINFlag()
+	{
+		return _FINFlag; 
 	}
 	
 	public double getTimeSent()
