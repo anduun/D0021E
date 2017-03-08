@@ -94,5 +94,9 @@ public class Node extends SimEnt {
 		{
 			System.out.println("Node "+_id.networkId()+ "." + _id.nodeId() +" receives message with seq: "+((Message) ev).seq() + " at time "+SimEngine.getTime());
 		}
+		else if (ev instanceof MessageTCP)
+		{
+			System.out.println("TCP HYPE");
+		}
 	}
 }
