@@ -27,7 +27,7 @@ public class Link extends SimEnt{
 	
 	public void recv(SimEnt src, Event ev)
 	{
-		if (ev instanceof Message)
+		if (ev instanceof Message || ev instanceof MessageTCP)
 		{
 			System.out.println("Link recv msg, passes it through");
 			if (src == _connectorA)

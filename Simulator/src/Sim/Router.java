@@ -60,7 +60,14 @@ public class Router extends SimEnt{
 			SimEnt sendNext = getInterface(((Message) event).destination().networkId());
 			System.out.println("Router sends to node: " + ((Message) event).destination().networkId()+"." + ((Message) event).destination().nodeId());		
 			send (sendNext, event, _now);
+		}
+		else if (event instanceof MessageTCP)
+		{
+			System.out.println("Router handles packet with seq: " + ((MessageTCP) event).getSeqNr()+" from node: "+((MessageTCP) event).source().networkId()+"." + ((MessageTCP) event).source().nodeId() );
+			SimEnt sendNext = getInterface(((MessageTCP) event).destination().networkId());
+			System.out.println("Router sends to node: " + ((MessageTCP) event).destination().networkId()+"." + ((MessageTCP) event).destination().nodeId());
+			send (sendNext, event, _now);
 	
-		}	
+		}
 	}
 }
