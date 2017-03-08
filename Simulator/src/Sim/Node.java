@@ -71,7 +71,7 @@ public class Node extends SimEnt {
 		System.out.println();
 		System.out.println("Send SYN");
 		System.out.println();
-		send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, -1 , 0 , 1 ), 0);
+		send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, -1 , 0 , 1 ,0), 0);
 	}
 	
 //**********************************************************************************	
@@ -109,7 +109,7 @@ public class Node extends SimEnt {
 				System.out.println("-----------------------------------------------");
 				int seqNr = rand.nextInt(101) + 1000;
 				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
-				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr ,ackNr, 1 , 1 ), 0);
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr ,ackNr, 1 , 1 ,0), 0);
 			}
 			else if (((MessageTCP) ev).getACKFlag() == 1 && ((MessageTCP) ev).getSYNFlag() == 1 ){
 				System.out.println("-----------------------------------------------");
@@ -123,16 +123,69 @@ public class Node extends SimEnt {
 				System.out.println("-----------------------------------------------");
 				int seqNr = ((MessageTCP) ev).getAckNr();
 				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
-				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, ackNr, 1 , 0 ), 0);
-			}
-			else{
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, ackNr, 1 , 0 ,0), 0);
+				
+				
 				System.out.println("-----------------------------------------------");
 				System.out.println();
-				System.out.println("ACK received");
+				System.out.println("Send FIN");
+				System.out.println();
+				System.out.println("-----------------------------------------------");
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, ackNr, 0 , 0 ,1), 0);
+			}
+			else if(((MessageTCP) ev).getACKFlag() == 0 && ((MessageTCP) ev).getSYNFlag() == 0  && ((MessageTCP) ev).getFINFlag() == 1){
+				System.out.println("-----------------------------------------------");
+				System.out.println();
+				System.out.println("FIN1 received");
 				System.out.println("seqNr: " + ((MessageTCP) ev).getSeqNr());
 				System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
 				System.out.println();
+				System.out.println("Send ACK");
+				System.out.println();
+				System.out.println("Send FIN2");
+				System.out.println();
 				System.out.println("-----------------------------------------------");
+				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
+				int seqNr = ((MessageTCP) ev).getAckNr();
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), -1, ackNr, 1 , 0 ,0), 0);
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), seqNr, ackNr, 1 , 0 ,1), 0);
+				
+			}
+			else if(((MessageTCP) ev).getACKFlag() == 1 && ((MessageTCP) ev).getSYNFlag() == 0 &&((MessageTCP) ev).getFINFlag() == 1){
+				System.out.println("-----------------------------------------------");
+				System.out.println();
+				System.out.println("FIN2 received");
+				System.out.println("seqNr: " + ((MessageTCP) ev).getSeqNr());
+				System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
+				System.out.println();
+				System.out.println("Send ACK");
+				System.out.println();
+				System.out.println("-----------------------------------------------");
+				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
+				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), -1, ackNr, 1 , 0 ,0), 0);
+				
+			}
+			
+			else{
+				if (((MessageTCP) ev).getSeqNr() == -1)
+				{
+					System.out.println("-----------------------------------------------");
+					System.out.println();
+					System.out.println("ACK received");	
+					System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
+					System.out.println();
+					System.out.println("-----------------------------------------------");
+				}
+				else{
+					System.out.println("-----------------------------------------------");
+					System.out.println();
+					System.out.println("ACK received");
+					System.out.println("seqNr: " + ((MessageTCP) ev).getSeqNr());
+					System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
+					System.out.println();
+					System.out.println("-----------------------------------------------");
+				}
+				
 			}
 		}
 
