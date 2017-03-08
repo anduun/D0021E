@@ -98,5 +98,9 @@ public class Node extends SimEnt {
 		{
 			System.out.println("TCP HYPE");
 		}
+		else if (ev instanceof testing)
+		{
+			
+		}
 	}
 }
