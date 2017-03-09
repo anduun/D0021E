@@ -1,6 +1,5 @@
 package Sim;
 
-
 // This class implements an event that sends a TCP Message
 
 public class MessageTCP implements Event{
@@ -62,6 +61,11 @@ public class MessageTCP implements Event{
 	public double getTimeSent()
 	{
 		return _timeSent;
+	}
+	
+	public String getMessageInfo()
+	{
+		return "Source "+_source.networkId()+"."+_source.nodeId()+" | Dest "+_destination.networkId()+"."+_destination.nodeId()+" | Seq "+_seqNr+" | Ack " +_ackNr+" | AckF "+_ACKFlag+" | SynF "+_SYNFlag+" | FinF "+_FINFlag;
 	}
 
 	public void entering(SimEnt locale)

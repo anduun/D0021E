@@ -6,7 +6,7 @@ public class Run {
 	public static void main (String [] args)
 	{
  		//Creates two links
- 		Link link1 = new Link();
+ 		Link link1 = new LossyLink(20);
 		Link link2 = new Link();
 		
 		// Create two end hosts that will be
@@ -32,7 +32,7 @@ public class Run {
 		
 		// Generate some traffic
 		// host1 will send 10 messages with time interval 2 to network 2, node 2. Sequence starts with number 1
-		host1.startSendingTCP(2, 1, 5, 3);
+		host1.startSendingTCP(2, 1, 10, 3);
 		// host2 will send 15 messages with time interval 2 to network 1, node 1. Sequence starts with number 21
 		//host2.startSendingCBR(1, 1, 15, 2, 21);
 		
