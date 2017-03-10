@@ -16,6 +16,11 @@ public class Node extends SimEnt {
 	private int _latestSeqNr = -1;
 	private int _latestAckNr = -1;
 	private ArrayList<MessageTCP> _msgBuffer = new ArrayList<MessageTCP>();
+	
+	// Lists used to verify that messages arrived
+	private ArrayList<MessageTCP> _recMessages = new ArrayList<MessageTCP>();
+	private ArrayList<MessageTCP> _ackdMessages = new ArrayList<MessageTCP>();
+	
 	private Random rand = new Random();
 	
 	public Node(int network, int node)
@@ -48,7 +53,9 @@ public class Node extends SimEnt {
 	private int _timeBetweenSending = 10; //time between messages
 	private int _toNetwork = 0;
 	private int _toHost = 0;
+	private NetworkAddr _toNode;
 	
+	// Currently not used
 //	public void startSending(int network, int node, int number, int timeInterval, int startSeq)
 //	{
 //		_stopSendingAfter = number;
@@ -66,18 +73,24 @@ public class Node extends SimEnt {
 		_timeBetweenSending = timeInterval;
 		_toNetwork = network;
 		_toHost = node;
+		_toNode = new NetworkAddr(_toNetwork, _toHost);
 		allowedToStartSending = true;
 		
 //		_seq = rand.nextInt(101);
 		_seq = 10;
 		
-		System.out.println("-----------------------------------------------");
-		System.out.println("Node "+_id.getString()+" sends SYN message with seq "+_seq+" to Node "+_toNetwork+"."+_toHost);
-		System.out.println("-----------------------------------------------");
-		System.out.println();
+		printSendMsgInfo("SYN", _seq, -1, _toNode);
 		
-		send(_peer, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), _seq, -1, 0, 1, 0), 0);
+		send(_peer, new MessageTCP(_id, _toNode, _seq, -1, 0, 1, 0), 0);
 		_seq++;
+	}
+	
+	public void printRecMessageList()
+	{
+		for(int i=0; i<_recMessages.size(); i++)
+		{
+			System.out.println(i+": "+_recMessages.get(i).getMessageInfo());
+		}
 	}
 	
 //**********************************************************************************	
@@ -94,19 +107,9 @@ public class Node extends SimEnt {
 			
 			if(_sentmsg < _stopSendingAfter)
 			{
+				printSendMsgInfo("SEQ", _seq, _latestAckNr, _toNode);
 				
-				System.out.println("Node "+_id.getString()+" sends SEQ message with seq "+_seq+" and ack * to Node "+_toNetwork+"."+_toHost);
-				System.out.println();
-				
-//				System.out.println("-----------------------------------------------");
-//				System.out.println();
-//				System.out.println("SEQ Sent from "+_id.getString());
-//				System.out.println("seqNr: " + _seq);
-//				System.out.println("ackNr: *");
-//				System.out.println();
-//				System.out.println("-----------------------------------------------");
-				
-				MessageTCP msg = new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), _seq, -1, 0, 0, 0);
+				MessageTCP msg = new MessageTCP(_id, _toNode, _seq, _latestAckNr, 0, 0, 0);
 				_msgBuffer.add(msg);
 				send(_peer, msg, 0);
 				
@@ -114,6 +117,16 @@ public class Node extends SimEnt {
 				_sentmsg++;
 				
 				send(this, new TimerEvent(), _timeBetweenSending);
+			}
+			if(_sentmsg == _stopSendingAfter)
+			{
+				printSendMsgInfo("FIN1", _seq, _latestAckNr, _toNode);
+				
+				MessageTCP msg = new MessageTCP(_id, _toNode, _seq, _latestAckNr, 0, 0, 1);
+				
+				send(_peer, msg, 0);
+				
+				// seq++; ??????????? yes no maybe
 			}
 			
 			// Currently not used
@@ -139,58 +152,31 @@ public class Node extends SimEnt {
 
 			if (msgACKFlag == 0 && msgSYNFlag == 1 && msgFINFlag == 0)			// Receive SYN, Send SYN-ACK
 			{
-				
-				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" receives SYN message with seq "+recMsg.getSeqNr()+" from Node "+recMsg.source().getString());
-				System.out.println("-----------------------------------------------");
-				System.out.println();
-				
-//				System.out.println("-----------------------------------------------");
-//				System.out.println();
-//				System.out.println("SYN received by "+_id.getString());
-//				System.out.println("seqNr: " + recMsg.getSeqNr());
-//				System.out.println();
-//				System.out.println("Send SYN-ACK from "+_id.getString());
-//				System.out.println();
-//				System.out.println("-----------------------------------------------");
+				printRecMsgInfo("SYN", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
 				
 //				_seq = rand.nextInt(101) + 1000;
 				_seq = 10000;
 				_latestAckNr = recMsg.getSeqNr() + 1;
 				NetworkAddr dest = recMsg.source();
 				
-				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" sends SYN-ACK message with seq "+_seq+" and ack "+_latestAckNr+" to Node "+dest.getString());
-				System.out.println("-----------------------------------------------");
-				System.out.println();
+				printSendMsgInfo("SYN-ACK", _seq, _latestAckNr, dest);
 				
 				send(_peer, new MessageTCP(_id, dest, _seq , _latestAckNr, 1, 1, 0), 0);
+				
+				_seq++;
 			}
 			else if (msgACKFlag == 1 && msgSYNFlag == 1 && msgFINFlag == 0)		// Receive SYN-ACK, Send SEQ, Start Sending
 			{
-				
-				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" receives SYN-ACK with seq "+recMsg.getSeqNr()+" and ack "+recMsg.getAckNr()+" from Node "+recMsg.source().getString());
-				System.out.println("-----------------------------------------------");
-				System.out.println();
-				
-//				System.out.println("-----------------------------------------------");
-//				System.out.println();
-//				System.out.println("SYN-ACK received by "+_id.getString());
-//				System.out.println("seqNr: " + recMsg.getSeqNr());
-//				System.out.println("ackNr: " + recMsg.getAckNr());
-//				System.out.println();
-//				System.out.println("Send ACK from "+_id.getString());
-//				System.out.println();
-//				System.out.println("-----------------------------------------------");
+				printRecMsgInfo("SYN-ACK", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
 				
 				// Send ACK to finish 3-way handshake
 				_latestAckNr = recMsg.getSeqNr() + 1;
 				NetworkAddr dest = recMsg.source();
 				send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
 				
+				// Not using the printSendMsgInfo method here because we print extra information
 				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" sends ACK with seq "+_seq+" and ack "+_latestAckNr+" to Node "+dest.getString()+" to finish three way handshake");
+				System.out.println("Node "+_id.getString()+" sends ACK message with seq "+_seq+" and ack "+_latestAckNr+" to Node "+dest.getString()+" at time "+SimEngine.getTime()+" to finish three way handshake");
 				System.out.println("-----------------------------------------------");
 				System.out.println();
 				
@@ -200,19 +186,11 @@ public class Node extends SimEnt {
 			}
 			else if (msgACKFlag == 1 && msgSYNFlag == 0 && msgFINFlag == 0)		// Receive ACK
 			{
+				printRecMsgInfo("ACK", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
 				
-				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" receives ACK with ack "+recMsg.getAckNr()+" from Node "+recMsg.source().getString());
-				System.out.println("-----------------------------------------------");
-				System.out.println();
-				
-//				System.out.println("-----------------------------------------------");
-//				System.out.println();
-//				System.out.println("ACK received by "+_id.getString());
-//				System.out.println("seqNr: " + recMsg.getSeqNr());
-//				System.out.println("ackNr: " + recMsg.getAckNr());
-//				System.out.println();
-//				System.out.println("-----------------------------------------------");
+				// Check first position in Buffer
+				// If Sequence number matches - remove from Queue
+				// If Sequence number does not match - re-send message
 				
 				if(_msgBuffer.size() == 0)
 				{
@@ -220,109 +198,110 @@ public class Node extends SimEnt {
 				}
 				else
 				{
-					if(_msgBuffer.get(0).getSeqNr() + 1 == recMsg.getAckNr())
+					// Assuming that the message first in the buffer contains 1 bit of data, hence the +1
+					if(recMsg.getAckNr() == _msgBuffer.get(0).getSeqNr() + 1)
 					{
-						System.out.println("Remove seq #"+_msgBuffer.get(0).getSeqNr()+" from buffer.");
+						System.out.println("-----------------------------------------------");
+						System.out.println("Node "+_id.getString()+" removes message with seq "+_msgBuffer.get(0).getSeqNr()+" from buffer.");
+						System.out.println("-----------------------------------------------");
+						System.out.println();
 						_msgBuffer.remove(0);
 					}
-					else
+					else if(recMsg.getAckNr() < _msgBuffer.get(0).getSeqNr() + 1)
 					{
+						System.out.println("-----------------------------------------------");
+						System.out.println("Node "+_id.getString()+" re-sends the buffer messages to Node "+recMsg.source().getString());
+						System.out.println("-----------------------------------------------");
+						System.out.println();
 						for(int i=0; i < _msgBuffer.size(); i++)
 						{
 							MessageTCP msg = _msgBuffer.get(i);
 							send(_peer, msg, 0);
 						}
 					}
+					else
+					{
+						System.out.println("Node "+_id.getString()+" received ack "+recMsg.getAckNr()+" when Node has seq "+_seq);
+						System.out.println("(Something went wrong in the Receive ACK part)");
+					}
 				}
-				
-				// Check first position in FIFO Queue
-				// If Sequence number matches - remove from Queue
-				// If Sequence number does not match - re-send message
 			}
 			else if (msgACKFlag == 0 && msgSYNFlag == 0 && msgFINFlag == 0)		// Receive SEQ, Send ACK
-			{
-				System.out.println("-----------------------------------------------");
-				System.out.println("Node "+_id.getString()+" receives SEQ message with seq "+recMsg.getSeqNr()+" from Node "+recMsg.source().getString());
-				System.out.println("-----------------------------------------------");
-				System.out.println();
-				
-//				System.out.println("-----------------------------------------------");
-//				System.out.println();
-//				System.out.println("SEQ received by "+_id.getString());
-//				System.out.println("seqNr: " + recMsg.getSeqNr());
-//				System.out.println("ackNr: " + recMsg.getAckNr());
-//				System.out.println();
-//				System.out.println("-----------------------------------------------");
+			{	
+				printRecMsgInfo("SEQ", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
 				
 				NetworkAddr dest = recMsg.source();
 				int recSeq = recMsg.getSeqNr();
 				if(recSeq == _latestAckNr)
 				{
+					// Packet arrived safely and in the correct position
+					_recMessages.add(recMsg);
 					_latestAckNr++;
-					send(_peer, new MessageTCP(_id, dest, -1, _latestAckNr, 1, 0, 0), 0);
-					//
-					System.out.println("-----------------------------------------------");
-					System.out.println("Node "+_id.getString()+" sends ACK message with ack "+_latestAckNr+" to Node "+dest.getString());
-					System.out.println("-----------------------------------------------");
-					System.out.println();
 					
-//					System.out.println("-----------------------------------------------");
-//					System.out.println();
-//					System.out.println("ACK sent from "+_id.getString());
-//					System.out.println("seqNr: *");
-//					System.out.println("ackNr: " + _latestAckNr);
-//					System.out.println();
-//					System.out.println("-----------------------------------------------");
-					//
+					printSendMsgInfo("ACK", _seq, _latestAckNr, dest);
+					
+					send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
 				}
 				else if(recSeq > _latestAckNr)
 				{
+					// Packet arrived but in the wrong position, request re-sending of previous packets
 					// Discard packet?
-					send(_peer, new MessageTCP(_id, dest, -1, _latestAckNr, 1, 0, 0), 0);
-					//
-					System.out.println("-----------------------------------------------");
-					System.out.println("Node "+_id.getString()+" sends ACK message with ack "+_latestAckNr+" to Node "+dest.getString());
-					System.out.println("-----------------------------------------------");
-					System.out.println();
+					printSendMsgInfo("ACK", _seq, _latestAckNr, dest);
 					
-//					System.out.println("-----------------------------------------------");
-//					System.out.println();
-//					System.out.println("ACK sent from "+_id.getString());
-//					System.out.println("seqNr: *");
-//					System.out.println("ackNr: " + _latestAckNr);
-//					System.out.println();
-//					System.out.println("-----------------------------------------------");
-					//
+					send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
 				}
 				else
 				{
-					System.out.println(_latestAckNr);
-					System.out.println("Packet discarded - "+((MessageTCP) ev).getMessageInfo());		// Print packet/message info maybe
+					System.out.println("Node "+_id.getString()+" received seq "+recSeq+" when Node has ack "+_latestAckNr);
+					System.out.println("Discarded packet: "+((MessageTCP) ev).getMessageInfo());
 				}
-				
-//				_seq = ((MessageTCP) ev).getAckNr();
-//				_latestAckNr = ((MessageTCP) ev).getSeqNr() + 1;
-//				send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
 			}
-			else if(msgACKFlag == 1 && msgSYNFlag == 0 && msgFINFlag == 1)
+			else if(msgACKFlag == 0 && msgSYNFlag == 0 && msgFINFlag == 1)		// Receive FIN1, send FINACK ???
 			{
-				System.out.println("-----------------------------------------------");
-				System.out.println();
-				System.out.println("FIN2 received");
-				System.out.println("ackNr: " + ((MessageTCP) ev).getAckNr());
-				System.out.println("seqNr: " + ((MessageTCP) ev).getSeqNr());
-				System.out.println();
-				System.out.println("Send ACK");
-				System.out.println();
-				System.out.println("-----------------------------------------------");
-				int ackNr = ((MessageTCP) ev).getSeqNr() + 1;
-				send(this, new MessageTCP(_id, new NetworkAddr(_toNetwork, _toHost), -1, ackNr, 1 , 0 ,0), 0);
+				printRecMsgInfo("FIN1", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
+				
+				// Send ACK
+				// Do something - "activate" boolean to collect packages ???
+				// Send FIN2 after all packages are collected
+				
+				NetworkAddr dest = recMsg.source();
+				
+				printSendMsgInfo("FIN1ACK", _seq, _latestAckNr, dest);
+				send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
+				
+				// NINJA FIX xD
+				printSendMsgInfo("FIN2", _seq, _latestAckNr, dest);
+				send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 1), 0);
+			}
+			else if(msgACKFlag == 1 && msgSYNFlag == 0 && msgFINFlag == 1)		// Receive FIN2, ???
+			{
+				printRecMsgInfo("FIN2", recMsg.getSeqNr(), recMsg.getAckNr(), recMsg.source());
+				
+				NetworkAddr dest = recMsg.source();
+				
+				printSendMsgInfo("FIN2ACK", _seq, _latestAckNr, dest);
+				send(_peer, new MessageTCP(_id, dest, _seq, _latestAckNr, 1, 0, 0), 0);
 			}
 			else
 			{
 				System.out.println("Something went wrong in Node "+_id.networkId()+"."+_id.nodeId());
 			}
 		}
-
+	}
+	
+	private void printSendMsgInfo(String msgType, int seq, int ack, NetworkAddr destNode)
+	{
+		System.out.println("-----------------------------------------------");
+		System.out.println("Node "+_id.getString()+" sends "+msgType+" message with seq "+seq+" and ack "+ack+" to Node "+destNode.getString()+" at time "+SimEngine.getTime());
+		System.out.println("-----------------------------------------------");
+		System.out.println();
+	}
+	
+	private void printRecMsgInfo(String msgType, int seq, int ack, NetworkAddr from)
+	{
+		System.out.println("-----------------------------------------------");
+		System.out.println("Node "+_id.getString()+" receives "+msgType+" message with seq "+seq+" and ack "+ack+" from Node "+from.getString()+" at time "+SimEngine.getTime());
+		System.out.println("-----------------------------------------------");
+		System.out.println();
 	}
 }

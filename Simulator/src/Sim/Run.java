@@ -8,7 +8,7 @@ public class Run {
  		//Creates two links
  		Link link1 = new LossyLink(20);
 		Link link2 = new Link();
-		
+
 		// Create two end hosts that will be
 		// communicating via the router
 		Node host1 = new Node(1,1);
@@ -43,6 +43,13 @@ public class Run {
 		try
 		{
 			t.join();
+			System.out.println();
+			System.out.println("-----------------------------------------------");
+			System.out.println("Node 1.1 received and approved messages:");
+			host1.printRecMessageList();
+			System.out.println();
+			System.out.println("Node 2.1 received and approved messages:");
+			host2.printRecMessageList();
 		}
 		catch (Exception e)
 		{
