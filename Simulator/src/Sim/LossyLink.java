@@ -7,6 +7,7 @@ public class LossyLink extends Link{
 	private SimEnt _connectorA=null;
 	private SimEnt _connectorB=null;
 	private int _dropPacketProbability;
+	private int _packetsReceived = 0;
 	private int _packetsDropped = 0;
 	
 	private Random rand = new Random();
@@ -27,9 +28,22 @@ public class LossyLink extends Link{
 			_connectorB=connectTo;
 	}
 	
+	public int getPacketsReceived()
+	{
+		return _packetsReceived;
+	}
+	
 	public int getPacketsDropped()
 	{
 		return _packetsDropped;
+	}
+	
+	public void printLinkStatistics()
+	{
+		System.out.println("Total Packets Received: "+_packetsReceived);
+		System.out.println("Total Packets Dropped: "+_packetsDropped);
+		System.out.println("Configured Droprate: "+_dropPacketProbability);
+		System.out.println("Actual Droprate: "+(_packetsDropped+0.0)/(_packetsReceived+0.0));
 	}
 	
 	// Called when a message enters the lossy link
@@ -40,25 +54,27 @@ public class LossyLink extends Link{
 			MessageTCP recMsg = ((MessageTCP) ev);
 			System.out.println("Link receives message: "+recMsg.getMessageInfo());
 			
-			// Checks if the message is part of a three way handshake or FIN to grant drop immunity
+			// Checks if the message is part of a three way handshake to grant drop immunity
 			// Note: the ACK in the 3rd part of the handshake can still be dropped but
 			//			it doesn't affect our solution
+			//       the ACK in both FIN messages can also be dropped but
+			//			it doesn't affect our solution
 			
-			// TODO: What about the FIN ACKs?
-			
-			if(recMsg.getSYNFlag() == 1 || recMsg.getFINFlag() == 1)
+			_packetsReceived++;
+			if(recMsg.getSYNFlag() == 1)
 			{
 				sendMessage(src, recMsg);
 			}
 			else if(rand.nextInt(100) < _dropPacketProbability)		// Calculates if the packet should be dropped or not
 			{
 				_packetsDropped++;
-				System.out.println("Packet dropped");
+				System.out.println("*** Packet Dropped ***");
 			}
 			else
 			{
 				sendMessage(src, recMsg);
 			}
+			System.out.println();
 		}
 	}
 	
